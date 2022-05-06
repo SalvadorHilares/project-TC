@@ -2,25 +2,41 @@
 #include "forward.h"
 using namespace std;
 
-bool comprobarSubcadena(string alfabeto,string substring){
-    for(int i=0; i<substring.size(); i++)
-        if(!alfabeto.find(substring[i]))
-            return false;
-    return true;
-}
+struct linkedList{
+    ForwardList<int>*  List;
+    string transitions;
+};
+
+struct AFN{
+    string alfabeto;
+    ForwardList<linkedList*>* states;
+    AFN(string _alfabeto){
+        alfabeto = _alfabeto;
+        states = new ForwardList<linkedList*>();
+    }
+};
 
 int main(){
     string alfabeto= "", substring = "";
-    ForwardList<string>* T = new ForwardList<string>();
-    int t = 0;
+    AFN afn(alfabeto);
+    int t = 0, z = 1;
     cin>>alfabeto;
     cin>>t;
     for(int i=0; i<t; i++){
         cin>>substring;
-        if(comprobarSubcadena(alfabeto,substring) == true)
-            T->push_front(substring);
+        for(int j=0; j<substring.size(); j++){
+            linkedList* n = new linkedList();
+            if (i > 0){
+                afn.states->front()->List->push_back(z);
+                afn.states->front()->transitions = afn.states->front()->transitions + substring[j];
+                j += 1;
+            }
+            n->List->push_front(z+1);
+            n->List->push_front(z);
+            n->transitions = substring[j];
+            afn.states->push_front(n);
+        }
+        z = substring.size()+1;
     }
-    for(int i=0; i<T->size(); i++)
-        cout<<"VALOR "<<i+1<<" DEL FORWARD LIST :"<<(*T)[i]<<endl;
     return 0;
 }
