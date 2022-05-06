@@ -33,7 +33,7 @@ int main(){
             }
             n->List->push_front(z+1);
             n->List->push_front(z);
-            n->transitions = substring[j];
+            n->transitions = n->transitions + substring[j];
             afn.states->push_front(n);
         }
         z = substring.size()+1;
