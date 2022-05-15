@@ -5,6 +5,9 @@ using namespace std;
 struct linkedList{
     ForwardList<int>*  List;
     string transitions;
+    linkedList(){
+        List = new ForwardList<int>();
+    }
 };
 
 struct AFN{
@@ -18,25 +21,25 @@ struct AFN{
 
 int main(){
     string alfabeto= "", substring = "";
-    AFN afn(alfabeto);
     int t = 0, z = 1;
     cin>>alfabeto;
     cin>>t;
+    AFN* afn = new AFN(alfabeto);
     for(int i=0; i<t; i++){
         cin>>substring;
         for(int j=0; j<substring.size(); j++){
             linkedList* n = new linkedList();
             if (i > 0){
-                afn.states->front()->List->push_back(z);
-                afn.states->front()->transitions = afn.states->front()->transitions + substring[j];
+                afn->states->front()->List->push_back(z+1);
+                afn->states->front()->transitions = afn->states->front()->transitions + substring[j];
                 j += 1;
             }
             n->List->push_front(z+1);
             n->List->push_front(z);
             n->transitions = n->transitions + substring[j];
-            afn.states->push_front(n);
+            afn->states->push_front(n);
+            z++;
         }
-        z = substring.size()+1;
     }
     return 0;
 }
