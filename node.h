@@ -5,7 +5,6 @@ template <typename T>
 struct Node {
     T data;
     Node<T>* next;
-    Node<T>* prev;
 
     Node(){ }
 
@@ -15,7 +14,8 @@ struct Node {
     }
 
     void killSelf(){
-        // TODO        
+        // TODO
+        delete next;        
     }
 };
 
