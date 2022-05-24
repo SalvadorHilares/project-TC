@@ -60,8 +60,28 @@ bool comprobate_alphabet(string aplhabet, char transition){
     return false;
 }
 
-Queue<int>* move_BFS(AFN* afn,string s){
+string state_final(AFN* afn, Queue<int>* queue){
+    Queue<int>* temp = new Queue<int>(); // PUNTERO AL PUNTERO PARA NO CAMBIAR EL PUNTERO ORIGINAL
+    for(int i=0; i<queue->size(); i++)
+        temp->enqueue((*queue)[i]);
+    while(!temp->is_empty()){
+        bool cmp = true;
+        int v = temp->dequeue();
+        for(int i=0; i<afn->states->size(); i++){
+            if(v == afn->states[0][i]->List[0][0]){
+                cmp = false;
+                break;
+            }
+        }
+        if(cmp)
+            return "YES";
+    }
+    return "NO";
+}
+
+string move_BFS(AFN* afn,string s){
     Queue<int>* queue = new Queue<int>();
+    string answer = "NO";
     queue->enqueue(afn->states->front()->List->front()); // Inicializamos con el estado 1
     for(char z : s){
         Queue<int>* newQueue = new Queue<int>();
@@ -76,24 +96,11 @@ Queue<int>* move_BFS(AFN* afn,string s){
         if(comprobate_alphabet(afn->alphabet,z))
             newQueue->enqueue(afn->states->front()->List->front());
         queue = newQueue;
+        answer = state_final(afn, queue);
+        if(answer == "YES")
+            return answer;
     }
-    return queue;
-}
-
-string state_final(AFN* afn, Queue<int>* queue){
-    while(!queue->is_empty()){
-        bool cmp = true;
-        int v = queue->dequeue();
-        for(int i=0; i<afn->states->size(); i++){
-            if(v == afn->states[0][i]->List[0][0]){
-                cmp = false;
-                break;
-            }
-        }
-        if(cmp)
-            return "YES";
-    }
-    return "NO";
+    return answer;   
 }
 
 void transition_BFS(AFN* afn){
@@ -104,8 +111,7 @@ void transition_BFS(AFN* afn){
     cin>>n;
     for(int i=0; i<n; i++){
         cin>>s;
-        queue = move_BFS(afn,s);
-        answers->push_back(state_final(afn,queue));
+        answers->push_back(move_BFS(afn,s));
     }
     for(int i=0; i<answers->size(); i++)
         cout<<(*answers)[i]<<endl;

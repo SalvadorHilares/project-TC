@@ -22,6 +22,7 @@ class Queue{
         T dequeue();
         T front();
         T back();
+        T& operator[](int location);
         bool is_empty();
         int size();
 };
@@ -66,6 +67,17 @@ T Queue<T>::back(){
 template<typename T>
 bool Queue<T>::is_empty(){
     return (nodes == 0) ? true : false;
+}
+
+template <typename T>
+T& Queue<T>::operator[](int location){
+    Node<T>* temp = head;
+    int cont = 0;
+    while(temp != nullptr && cont < location){
+        temp = temp->next;
+        cont++;
+    }
+    return temp->data;
 }
 
 template<typename T>
