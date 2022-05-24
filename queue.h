@@ -19,7 +19,7 @@ class Queue{
             nodes = 0;
         }
         void enqueue(T data);
-        void dequeue();
+        T dequeue();
         T front();
         T back();
         bool is_empty();
@@ -36,7 +36,7 @@ void Queue<T>::enqueue(T data){
 }
 
 template<typename T>
-void Queue<T>::dequeue(){
+T Queue<T>::dequeue(){
     if(head == nullptr){
         throw("ERROR");
     }else{

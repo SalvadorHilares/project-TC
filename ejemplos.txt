@@ -1,0 +1,13 @@
+EJEMPLO 1
+---------
+3
+web
+ebay
+weya
+3
+eweb
+quebay
+ffwegg
+
+EJEMPLO 2
+---------
