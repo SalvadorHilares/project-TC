@@ -167,7 +167,7 @@ T& ForwardList<T>::operator[](int location){
 
 template <typename T>
 bool ForwardList<T>::is_empty(){
-    return (size() == 0) ? true : false;
+    return (nodes == 0) ? true : false;
 }
 
 template <typename T>

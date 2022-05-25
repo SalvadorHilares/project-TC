@@ -3,10 +3,10 @@
 using namespace std;
 
 struct linkedList{
-    ForwardList<int>*  List;
+    ForwardList<string>*  List;
     string transitions;
     linkedList(){
-        List = new ForwardList<int>();
+        List = new ForwardList<string>();
     }
 };
 
@@ -20,10 +20,27 @@ struct AFN{
     AFN(){
         states = new ForwardList<linkedList*>();
     }
+    ~AFN() = default;
+};
+
+struct AFD{
+    string alphabet;
+    int initial_state;
+    ForwardList<linkedList*>* states;
+    AFD(){
+        initial_state = 1;
+        states = new ForwardList<linkedList*>();
+    }
+    AFD(string _alphabet){
+        this->alphabet = _alphabet;
+        initial_state = 1;
+        states = new ForwardList<linkedList*>();
+    }
+    ~AFD() = default;
 };
 
 AFN* createAFN(){
-    string alphabet= "", substring = "";
+    string alphabet= "", substring = "", state = "";
     int t = 0, z = 1;
     cin>>alphabet;
     cin>>t;
@@ -33,12 +50,14 @@ AFN* createAFN(){
         for(int j=0; j<substring.size(); j++){
             linkedList* n = new linkedList();
             if (i > 0 && j==0){
-                afn->states->front()->List->push_back(++z);
+                z = z + 1;
+                afn->states->front()->List->push_back(to_string(z));
                 afn->states->front()->transitions = afn->states->front()->transitions + substring[j];
                 j += 1;
             }
-            n->List->push_front(z+1);
-            n->List->push_front(z);
+            int b = z + 1;
+            n->List->push_front(to_string(b));
+            n->List->push_front(to_string(z));
             n->transitions = n->transitions + substring[j];
             afn->states->push_back(n);
             z++;
@@ -47,7 +66,7 @@ AFN* createAFN(){
     return afn;
 }
 
-void push_queue(AFN* afn, int position,char transition, Queue<int>* &queue){
+void push_queue(AFN* afn, int position,char transition, Queue<string>* &queue){
     for(int k=0; k<afn->states[0][position]->transitions.size(); k++)
         if(afn->states[0][position]->transitions[k] == transition)
             queue->enqueue(afn->states[0][position]->List[0][k+1]);
@@ -60,13 +79,13 @@ bool comprobate_alphabet(string aplhabet, char transition){
     return false;
 }
 
-string state_final(AFN* afn, Queue<int>* queue){
-    Queue<int>* temp = new Queue<int>(); // PUNTERO AL PUNTERO PARA NO CAMBIAR EL PUNTERO ORIGINAL
+string state_final(AFN* afn, Queue<string>* queue){
+    Queue<string>* temp = new Queue<string>(); // PUNTERO AL PUNTERO PARA NO CAMBIAR EL PUNTERO ORIGINAL
     for(int i=0; i<queue->size(); i++)
         temp->enqueue((*queue)[i]);
     while(!temp->is_empty()){
         bool cmp = true;
-        int v = temp->dequeue();
+        string v = temp->dequeue();
         for(int i=0; i<afn->states->size(); i++){
             if(v == afn->states[0][i]->List[0][0]){
                 cmp = false;
@@ -80,13 +99,13 @@ string state_final(AFN* afn, Queue<int>* queue){
 }
 
 string move_BFS(AFN* afn,string s){
-    Queue<int>* queue = new Queue<int>();
+    Queue<string>* queue = new Queue<string>();
     string answer = "NO";
     queue->enqueue(afn->states->front()->List->front()); // Inicializamos con el estado 1
     for(char z : s){
-        Queue<int>* newQueue = new Queue<int>();
+        Queue<string>* newQueue = new Queue<string>();
         while(!queue->is_empty()){
-            int v = queue->dequeue();
+            string v = queue->dequeue();
             for(int i=0; i<afn->states->size(); i++) // n grupos de estados
                 if(v == afn->states[0][i]->List[0][0]){
                     push_queue(afn,i,z,newQueue);
@@ -117,10 +136,32 @@ void transition_BFS(AFN* afn){
         cout<<(*answers)[i]<<endl;
 }
 
+AFD* convert_AFN_to_AFD(AFN* afn){
+    AFD* afd = new AFD(afn->alphabet);
+    for(int i=0; i<afn->alphabet.size(); i++){ // Recorremos el alfabeto
+        linkedList* n = new linkedList();
+        for(int j=0; j<afn->states->size(); j++){
+            for(int k=0; k<afn->states[0][i]->transitions.size(); k++){
+                if(afn->states[0][i]->transitions[k] == afn->alphabet[i]){
+                    
+                }
+            }
+        }
+
+    }
+    return afd;
+}
+
+void transiction_AFD(AFD* afd){
+
+}
+
 int main(){
     AFN* afn = new AFN();
     afn = createAFN();
     transition_BFS(afn);
-    delete afn;
+    AFD* afd = new AFD();
+    afd = convert_AFN_to_AFD(afn);
+    transiction_AFD(afd);
     return 0;
 }
