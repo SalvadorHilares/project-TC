@@ -25,16 +25,10 @@ struct AFN{
 
 struct AFD{
     string alphabet;
-    int initial_state;
-    ForwardList<linkedList*>* states;
-    AFD(){
-        initial_state = 1;
-        states = new ForwardList<linkedList*>();
-    }
+    string** transitions;
+    AFD(){}
     AFD(string _alphabet){
         this->alphabet = _alphabet;
-        initial_state = 1;
-        states = new ForwardList<linkedList*>();
     }
     ~AFD() = default;
 };
@@ -136,19 +130,33 @@ void transition_BFS(AFN* afn){
         cout<<(*answers)[i]<<endl;
 }
 
+string** createMatriz(int n, int m){
+    string** v = new string*[n];
+    for(int i=0; i<n; i++)
+        v[i] = new string[m];
+    return v;
+}
+
 AFD* convert_AFN_to_AFD(AFN* afn){
     AFD* afd = new AFD(afn->alphabet);
-    for(int i=0; i<afn->alphabet.size(); i++){ // Recorremos el alfabeto
-        linkedList* n = new linkedList();
-        for(int j=0; j<afn->states->size(); j++){
-            for(int k=0; k<afn->states[0][i]->transitions.size(); k++){
-                if(afn->states[0][i]->transitions[k] == afn->alphabet[i]){
-                    
-                }
-            }
+    int f = afn->states->size()+1, c = afn->alphabet.size()+1;
+    string** table_afnd = createMatriz(f,c);
+    table_afnd[0][0] = "&";
+    string n = "";
+    for(int i=0; i<afn->alphabet.size(); i++){
+        table_afnd[0][i+1] = afn->alphabet[i];
+        for(int j=1; j<=afn->states->size(); j++){
+            for(int z=0; z<afn->states[0][j-1]->transitions.size(); z++)
+                if(afn->states[0][j-1]->transitions[z] == afn->alphabet[i])
+                    n = n + afn->states[0][j-1]->List[0][z+1];
+            if(j==1)
+                n = "1" + n;
+            table_afnd[j][0] = afn->states[0][j-1]->List->front();
+            table_afnd[j][i+1] = n;
+            n.clear();
         }
-
     }
+    
     return afd;
 }
 
@@ -162,6 +170,6 @@ int main(){
     transition_BFS(afn);
     AFD* afd = new AFD();
     afd = convert_AFN_to_AFD(afn);
-    transiction_AFD(afd);
+    //transiction_AFD(afd);
     return 0;
 }

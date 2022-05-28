@@ -12,3 +12,50 @@ ffwegg
 
 EJEMPLO 2
 ---------
+1234567890()[]{};+-*/#abcdefghijklmnopqrstuvwxyz
+3
+return0;
+#ifdef
+while(true)
+4
+#definen5
+do{x=10}while(true);
+#ifndef
+return;
+
+EJEMPLO 3
+---------
+ABCDEFGHIJKLMNOP123456789abcdefghijklmnopqrstuvwxyz=_
+3
+fillMatrix
+N=
+matriz
+3
+fill_matrix
+ifn=5
+fillMatriz(matriz)
+
+EJEMPLO 4
+---------
+abcdefghijklmnopqrstuvwxyz
+4
+puerta
+puerco
+espin
+cocina
+3
+puercespim
+puerto
+uercocinas
+
+EJEMPLO 5
+---------
+ABCDEFGHIJKLMNOP123456789abcdefghijklmnopqrstuvwxyz=_()
+3
+fillMatrix
+N=
+matriz
+3
+fill_matrix
+ifn=5
+fillMatriz(matriz)
