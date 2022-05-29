@@ -28,6 +28,8 @@ struct AFD{
     string alphabet;
     string** transitions;
     DoubleList<string>* states_final;
+    int filas;
+    int columnas;
     AFD(){
         states_final = new DoubleList<string>();
     }
@@ -233,11 +235,47 @@ AFD* convert_AFN_to_AFD(AFN* afn){
     }
     afd->transitions = table_afd;
     afd->states_final = finals;
+    afd->filas = states->size()+1;
+    afd->columnas = c;
     return afd;
 }
 
 void transiction_AFD(AFD* afd){
-
+    int n = 0, posx = 0, posy = 0;
+    string s = "";
+    DoubleList<string>* answers = new DoubleList<string>();
+    cin>>n;
+    for(int i=0; i<n; i++){
+        cin>>s;
+        string state = "1";
+        bool cmp = true;
+        for(int j=0; j<s.size(); j++){ // RECORREMOS LA CADENA
+            if(repeat_state(afd->states_final, state)){
+                answers->push_back("YES");
+                cmp = false;
+                break;
+            }
+            for(int z=1; z<afd->filas; z++){ // BUSCAMOS EN QUE ESTADO SE ENCUENTRA
+                if(state == afd->transitions[z][0]){
+                    state = afd->transitions[z][0];
+                    posx = z;
+                    break;
+                }
+            }
+            for(int k=1; k<afd->columnas; k++){
+                if(s[j] == afd->transitions[0][k][0]){
+                    posy = k;
+                    break;
+                }cerr<<"No se encuentra en el alfabeto"<<endl;
+            }
+            state = afd->transitions[posx][posy];
+        }
+        if(cmp)
+            answers->push_back("NO");
+        state.clear();
+    }
+    for(int i=0; i<answers->size(); i++)
+        cout<<(*answers)[i]<<endl;
 }
 
 int main(){
@@ -246,6 +284,6 @@ int main(){
     transition_BFS(afn);
     AFD* afd = new AFD();
     afd = convert_AFN_to_AFD(afn);
-    transiction_AFD(afd);
+    //transiction_AFD(afd);
     return 0;
 }
