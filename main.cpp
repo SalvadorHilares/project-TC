@@ -26,16 +26,16 @@ struct AFN{
 
 struct AFD{
     string alphabet;
-    string** transitions;
-    DoubleList<string>* states_final;
+    DoubleList<string>*** transitions;
+    DoubleList<DoubleList<string>*>* states_final;
     int filas;
     int columnas;
     AFD(){
-        states_final = new DoubleList<string>();
+        states_final = new DoubleList<DoubleList<string>*>();
     }
     AFD(string _alphabet){
         this->alphabet = _alphabet;
-        states_final = new DoubleList<string>();
+        states_final = new DoubleList<DoubleList<string>*>();
     }
     ~AFD() = default;
 };
@@ -137,101 +137,108 @@ void transition_BFS(AFN* afn){
         cout<<(*answers)[i]<<endl;
 }
 
-string** createMatriz(int n, int m){
-    string** v = new string*[n];
+DoubleList<string>*** createMatriz(int n, int m){
+    DoubleList<string>*** v = new DoubleList<string>**[n];
     for(int i=0; i<n; i++)
-        v[i] = new string[m];
+        v[i] = new DoubleList<string>*[m];
     return v;
 }
 
-bool repeat_state(DoubleList<string>* n, string state){
+DoubleList<string>* Union(DoubleList<string>*** matriz,int n, int m, DoubleList<string>* l){
+    DoubleList<string>* res = new DoubleList<string>();
+    for(int j=0; j<l->size(); j++)
+        for(int i=0; i<n; i++)
+            if(matriz[i][0][0][0] == (*l)[j])
+                for(int z=0; z<matriz[i][m]->size(); z++)
+                    res->push_back(matriz[i][m][0][z]);
+    return res;
+}
+
+bool same(DoubleList<string>* n, DoubleList<string>* m){
+    if(n->size() != m->size())
+        return false;
     for(int i=0; i<n->size(); i++)
-        if((*n)[i] == state)
+        if((*n)[i] != (*m)[i])
+            return false;
+    return true;
+}
+
+bool repeat_state(DoubleList<DoubleList<string>*>* n, DoubleList<string>* state){
+    for(int i=0; i<n->size(); i++)
+        if(same(n[0][i],state))
             return true;
     return false;
 }
 
-string Union(string** matriz, int n, int m, char c){
-    for(int j=1; j<n; j++)
-        if(c == matriz[j][0][0])
-            return matriz[j][m];
-    return "";
-}
-
-DoubleList<string>* final(AFN* afn,string c, DoubleList<string>*& f){
-    DoubleList<string>* l = f;
-    for(int i=0; i<c.size(); i++){
+void final(AFN* afn,DoubleList<string>* c, DoubleList<DoubleList<string>*>*& f){
+    for(int j=0; j<c->size(); j++){
         bool cmp = true;
-        for(int j=0; j<afn->states->size(); j++){
-            if(c[i] == afn->states[0][j]->List[0][0][0]){
+        for(int i=0; i<afn->states->size(); i++)
+            if(afn->states[0][i]->List[0][0] == (*c)[j]){
                 cmp = false;
                 break;
             }
-        }
-        if(cmp){
-            l->push_front(c);
-            break;
-        }
+        if(cmp)
+            f->push_back(c);
     }
-    return l;
 }
 
 AFD* convert_AFN_to_AFD(AFN* afn){
     AFD* afd = new AFD(afn->alphabet);
-    int f = afn->states->size()+1, c = afn->alphabet.size()+1;
-    string** table_afnd = createMatriz(f,c);
-    table_afnd[0][0] = "";
-    string n = "";
+    int f = afn->states->size(), c = afn->alphabet.size()+1;
+    DoubleList<string>*** table_afnd = createMatriz(f,c);
     for(int i=0; i<afn->alphabet.size(); i++){
-        table_afnd[0][i+1] = afn->alphabet[i];
-        for(int j=1; j<=afn->states->size(); j++){
-            for(int z=0; z<afn->states[0][j-1]->transitions.size(); z++)
-                if(afn->states[0][j-1]->transitions[z] == afn->alphabet[i])
-                    n = n + afn->states[0][j-1]->List[0][z+1];
-            if(j==1)
-                n = "1" + n;
-            table_afnd[j][0] = afn->states[0][j-1]->List->front();
+        for(int j=0; j<f; j++){
+            DoubleList<string>* n = new DoubleList<string>();
+            for(int z=0; z<afn->states[0][j]->transitions.size(); z++)
+                if(afn->states[0][j]->transitions[z] == afn->alphabet[i])
+                    n->push_back(afn->states[0][j]->List[0][z+1]);
+            if(j==0)
+                n->push_front("1");
+            DoubleList<string>* r = new DoubleList<string>();
+            r->push_back(afn->states[0][j]->List->front());
+            table_afnd[j][0] = r;
             table_afnd[j][i+1] = n;
-            n.clear();
         }
     }
-    DoubleList<string>* states = new DoubleList<string>();
-    DoubleList<string>* finals = new DoubleList<string>();
-    for(int i=1; i<afn->alphabet.size(); i++)
-        if(table_afnd[1][i].size() > 1){
-            states->push_back(table_afnd[1][i]);
-            finals = final(afn,table_afnd[1][i], finals);
+    DoubleList<DoubleList<string>*>* states = new DoubleList<DoubleList<string>*>();
+    DoubleList<DoubleList<string>*>* finals = new DoubleList<DoubleList<string>*>();
+    for(int i=1; i<c; i++){
+        if(table_afnd[0][i]->size() > 1){
+            DoubleList<string>* p = new DoubleList<string>();
+            for(int j=0; j< table_afnd[0][i]->size(); j++)
+                p->push_back(table_afnd[0][i][0][j]);
+            states->push_back(p);
+            final(afn,p, finals);
         }
-    n.clear();
-    DoubleList<string>* trans = new DoubleList<string>();
+    }
+    DoubleList<DoubleList<string>*>* trans = new DoubleList<DoubleList<string>*>();
     for(int i=0; i<states->size(); i++){
         for(int z=1; z<c; z++){
-            for(int j=0; j<(*states)[i].size(); j++){
-                n = n + Union(table_afnd, f, z, (*states)[i][j]);
-            }
-            if(!repeat_state(states,n) && n!="1"){
+            DoubleList<string>* n = new DoubleList<string>();
+            n = Union(table_afnd,f, z, states[0][i]);
+            if(!repeat_state(states,n) && n->size()>1){
                 states->push_back(n);
-                finals = final(afn,n, finals);
+                final(afn,n, finals);
             }
             trans->push_back(n);
-            n.clear();
         }
     }
-    string** table_afd = createMatriz(states->size()+1,c);
-    table_afd[0][0] = "";
-    table_afd[1][0] = "1";
-    for(int i=1; i<c; i++){
-        table_afd[0][i] = afn->alphabet[i];
-        table_afd[1][i] = table_afnd[1][i];
-    }
-    int pos = 0, r = 1;
-    for(int i=2; i<states->size()+1; i++){
-        table_afd[i][0] = (*states)[i-2];
-        for(int z=r; pos<c-1; pos++){
+    DoubleList<string>*** table_afd = createMatriz(states->size()+1,c);
+    DoubleList<string>* b = new DoubleList<string>();
+    b->push_back("1");
+    table_afd[0][0] =b;
+    for(int i=1; i<c; i++)
+        table_afd[0][i] = table_afnd[0][i];
+    int pos = 0;
+    for(int i=1; i<states->size()+1; i++){
+        table_afd[i][0] = (*states)[i-1]; // FUNCIONA
+        for(int z=1; pos<trans->size(); z++){
             table_afd[i][z] = (*trans)[pos];
-            z++;
+            pos++;
+            if(z/afd->alphabet.size()==1)
+                break;
         }
-        r = 0;
     }
     afd->transitions = table_afd;
     afd->states_final = finals;
@@ -240,6 +247,7 @@ AFD* convert_AFN_to_AFD(AFN* afn){
     return afd;
 }
 
+/*
 void transiction_AFD(AFD* afd){
     int n = 0, posx = 0, posy = 0;
     string s = "";
@@ -247,41 +255,43 @@ void transiction_AFD(AFD* afd){
     cin>>n;
     for(int i=0; i<n; i++){
         cin>>s;
-        string state = "1";
+        DoubleList<string>* state = new DoubleList<string>();
         bool cmp = true;
         for(int j=0; j<s.size(); j++){ // RECORREMOS LA CADENA
-            if(repeat_state(afd->states_final, state)){
-                answers->push_back("YES");
-                cmp = false;
-                break;
-            }
-            for(int z=1; z<afd->filas; z++){ // BUSCAMOS EN QUE ESTADO SE ENCUENTRA
-                if(state == afd->transitions[z][0]){
+            for(int r=0; r<afd->states_final->size(); r++)
+                if(repeat_state(afd->states_final[0][r], state)){
+                    answers->push_back("YES");
+                    cmp = false;
+                    break;
+                }
+            for(int z=0; z<afd->filas; z++){ // BUSCAMOS EN QUE ESTADO SE ENCUENTRA
+                if(same(state,afd->transitions[z][0])){
                     state = afd->transitions[z][0];
                     posx = z;
                     break;
                 }
             }
-            for(int k=1; k<afd->columnas; k++){
-                if(s[j] == afd->transitions[0][k][0]){
-                    posy = k;
+            for(int k=0; k<afd->columnas; k++){
+                if(s[j] == afd->alphabet[k]){
+                    posy = k+1;
                     break;
-                }cerr<<"No se encuentra en el alfabeto"<<endl;
+                }
             }
             state = afd->transitions[posx][posy];
         }
         if(cmp)
             answers->push_back("NO");
-        state.clear();
+        state->clear();
     }
     for(int i=0; i<answers->size(); i++)
         cout<<(*answers)[i]<<endl;
 }
+*/
 
 int main(){
     AFN* afn = new AFN();
     afn = createAFN();
-    transition_BFS(afn);
+    //transition_BFS(afn);
     AFD* afd = new AFD();
     afd = convert_AFN_to_AFD(afn);
     //transiction_AFD(afd);
