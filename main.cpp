@@ -67,6 +67,16 @@ AFN* createAFN(){
     return afn;
 }
 
+void display(AFN* afn){
+    for(int i=0; i<afn->states->size(); i++){
+        for(int j=0; j<afn->states[0][i]->List->size(); j++){
+            cout<<afn->states[0][i]->List[0][j]<<" -> ";
+        }
+        cout<<"X";
+        cout<<endl;
+    }
+}
+
 void push_queue(AFN* afn, int position,char transition, Queue<string>* &queue){
     for(int k=0; k<afn->states[0][position]->transitions.size(); k++)
         if(afn->states[0][position]->transitions[k] == transition)
@@ -290,9 +300,10 @@ void transiction_AFD(AFD* afd){
 int main(){
     AFN* afn = new AFN();
     afn = createAFN();
+    display(afn);
     //transition_BFS(afn);
-    AFD* afd = new AFD();
-    afd = convert_AFN_to_AFD(afn);
-    transiction_AFD(afd);
+    //AFD* afd = new AFD();
+    //afd = convert_AFN_to_AFD(afn);
+    //transiction_AFD(afd);
     return 0;
 }
