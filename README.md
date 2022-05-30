@@ -15,4 +15,8 @@ Otra opcion para resolver el problema es usando el algoritmo de transformacion d
 
 ## 2da entrega
 
-Para la segunda entrega se resolveran las preguntas 4,5 y 6
+Para la segunda entrega se resolveran las preguntas 4,5 y 6}
+
+## Observaciones
+
+Se trabajó con Code With Me 
