@@ -25,18 +25,6 @@ return;
 
 EJEMPLO 3
 ---------
-ABCDEFGHIJKLMNOP123456789abcdefghijklmnopqrstuvwxyz=_
-3
-fillMatrix
-N=
-matriz
-3
-fill_matrix
-ifn=5
-fillMatriz(matriz)
-
-EJEMPLO 4
----------
 abcdefghijklmnopqrstuvwxyz
 4
 puerta
@@ -48,7 +36,7 @@ puercespim
 puerto
 uercocinas
 
-EJEMPLO 5
+EJEMPLO 4
 ---------
 ABCDEFGHIJKLMNOP123456789abcdefghijklmnopqrstuvwxyz=_()
 3
@@ -60,11 +48,13 @@ fill_matrix
 ifn=5
 fillMatriz(matriz)
 
-EJEMPLO 6
+EJEMPLO 5
 ---------
 ab
 2
 aba
 aa
-1
+3
 aab
+bbaba
+bbabb

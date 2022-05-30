@@ -227,7 +227,7 @@ AFD* convert_AFN_to_AFD(AFN* afn){
     DoubleList<string>*** table_afd = createMatriz(states->size()+1,c);
     DoubleList<string>* b = new DoubleList<string>();
     b->push_back("1");
-    table_afd[0][0] =b;
+    table_afd[0][0] = b;
     for(int i=1; i<c; i++)
         table_afd[0][i] = table_afnd[0][i];
     int pos = 0;
@@ -247,7 +247,7 @@ AFD* convert_AFN_to_AFD(AFN* afn){
     return afd;
 }
 
-/*
+
 void transiction_AFD(AFD* afd){
     int n = 0, posx = 0, posy = 0;
     string s = "";
@@ -256,14 +256,14 @@ void transiction_AFD(AFD* afd){
     for(int i=0; i<n; i++){
         cin>>s;
         DoubleList<string>* state = new DoubleList<string>();
+        state->push_back("1");
         bool cmp = true;
-        for(int j=0; j<s.size(); j++){ // RECORREMOS LA CADENA
-            for(int r=0; r<afd->states_final->size(); r++)
-                if(repeat_state(afd->states_final[0][r], state)){
-                    answers->push_back("YES");
-                    cmp = false;
-                    break;
-                }
+        for(int j=0; j<=s.size(); j++){ // RECORREMOS LA CADENA
+            if(repeat_state(afd->states_final, state)){ // ESTADO FINAL
+                answers->push_back("YES");
+                cmp = false;
+                break;
+            }
             for(int z=0; z<afd->filas; z++){ // BUSCAMOS EN QUE ESTADO SE ENCUENTRA
                 if(same(state,afd->transitions[z][0])){
                     state = afd->transitions[z][0];
@@ -271,7 +271,7 @@ void transiction_AFD(AFD* afd){
                     break;
                 }
             }
-            for(int k=0; k<afd->columnas; k++){
+            for(int k=0; k<afd->columnas; k++){ // UBICACION ALFABETO
                 if(s[j] == afd->alphabet[k]){
                     posy = k+1;
                     break;
@@ -281,12 +281,11 @@ void transiction_AFD(AFD* afd){
         }
         if(cmp)
             answers->push_back("NO");
-        state->clear();
     }
     for(int i=0; i<answers->size(); i++)
         cout<<(*answers)[i]<<endl;
 }
-*/
+
 
 int main(){
     AFN* afn = new AFN();
@@ -294,6 +293,6 @@ int main(){
     //transition_BFS(afn);
     AFD* afd = new AFD();
     afd = convert_AFN_to_AFD(afn);
-    //transiction_AFD(afd);
+    transiction_AFD(afd);
     return 0;
 }
