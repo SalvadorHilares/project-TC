@@ -188,6 +188,7 @@ void DoubleList<T>::clear(){
     while(head!=nullptr){
         Node<T>* temp = head;
         head = head->next;
+        nodes--;
         delete temp;
     }
     head = nullptr;

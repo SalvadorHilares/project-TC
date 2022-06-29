@@ -90,7 +90,7 @@ bool comprobate_alphabet(string aplhabet, char transition){
     return false;
 }
 
-string state_final(AFN* afn, Queue<string>* queue){
+string state_final_queue(AFN* afn, Queue<string>* queue){
     Queue<string>* temp = new Queue<string>(); // PUNTERO AL PUNTERO PARA NO CAMBIAR EL PUNTERO ORIGINAL
     for(int i=0; i<queue->size(); i++)
         temp->enqueue((*queue)[i]);
@@ -126,7 +126,7 @@ string move_BFS(AFN* afn,string s){
         if(comprobate_alphabet(afn->alphabet,z))
             newQueue->enqueue(afn->states->front()->List->front());
         queue = newQueue;
-        answer = state_final(afn, queue);
+        answer = state_final_queue(afn, queue);
         if(answer == "YES")
             return answer;
     }
@@ -296,14 +296,91 @@ void transiction_AFD(AFD* afd){
         cout<<(*answers)[i]<<endl;
 }
 
+bool state_final(AFN* afn,string p){
+    for(int i=0; i<afn->states->size(); i++)
+        if(p == afn->states[0][i]->List[0][0])
+            return false;
+    return true;
+}
+
+int search_pos(AFN* afn,string state, int pos){
+    for(int i=pos; i<afn->states->size(); i++)
+        if(afn->states[0][i]->List[0][0] == state)
+            return i;
+    throw("No se encontro la posición");
+}
+
+void create_array_A(AFN* afn, string s, DoubleList<string>* A){
+    string suffix = "", aux = "";
+    int pos = 0;
+    for(int i=s.size()-1; i>=0; i--){
+        suffix = s[i] + suffix;
+        for(int j=0; j<afn->states->front()->transitions.size(); j++){
+            if(afn->states->front()->transitions[j] == suffix[0] && suffix.size() == 1){
+                A->push_back(afn->states->front()->List[0][j+1]);
+            }else if(afn->states->front()->transitions[j] == suffix[0]){
+                aux = aux + afn->states->front()->transitions[j];
+                pos = search_pos(afn, afn->states->front()->List[0][j+1], pos);
+                while(true){
+                    aux = aux + afn->states[0][pos]->transitions;
+                    if(aux.size() == suffix.size())
+                        break;
+                    pos = search_pos(afn, afn->states[0][pos]->List[0][1], pos);
+                }
+                if(aux == suffix)
+                    A->push_back(afn->states[0][pos]->List[0][1]);
+                aux.clear();
+                pos = 0;
+            }
+        }
+    }
+}
+
+void create_states_special(AFN* afn){
+    int pos = 0;
+    bool cmp = false;
+    // Estado inicial q0
+    const string initial_state = afn->states->front()->List->front();
+    // Estado P
+    string p = "";
+    // Cadena S que puede llegar de q0 a p
+    string s = "";
+    // Estados que puedo llegar por un sufijo
+    DoubleList<string>* A = new DoubleList<string>();
+    // Creamos todos los estados
+    for(int i=0; i<afn->states->front()->transitions.size(); i++){
+        s = s + afn->states->front()->transitions[i];
+        while(pos < afn->states->size()){
+            if(!cmp)
+                p = afn->states[0][pos]->List[0][1];
+            else
+                p = afn->states->front()->List[0][i+1];
+            create_array_A(afn,s,A); 
+            if(state_final(afn,p)){
+                A->clear();
+                pos++;
+                cmp = true;
+                break;
+            }
+            s = s + afn->states[0][pos+1 - (cmp==true ? 1 : 0)]->transitions;
+            A->clear();
+            if(cmp)
+                cmp = false;
+            else
+                pos++;
+        }
+        s.clear();
+    }
+}
 
 int main(){
     AFN* afn = new AFN();
     afn = createAFN();
-    display(afn);
+    //display(afn);
     //transition_BFS(afn);
     //AFD* afd = new AFD();
     //afd = convert_AFN_to_AFD(afn);
+    create_states_special(afn);
     //transiction_AFD(afd);
     return 0;
 }
