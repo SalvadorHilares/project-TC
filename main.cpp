@@ -154,7 +154,7 @@ DoubleList<string>*** createMatriz(int n, int m){
     return v;
 }
 
-DoubleList<string>* Union(DoubleList<string>*** matriz,int n, int m, DoubleList<string>* l){
+DoubleList<string>* Union_matriz(DoubleList<string>*** matriz,int n, int m, DoubleList<string>* l){
     DoubleList<string>* res = new DoubleList<string>();
     for(int j=0; j<l->size(); j++)
         for(int i=0; i<n; i++)
@@ -226,7 +226,7 @@ AFD* convert_AFN_to_AFD(AFN* afn){
     for(int i=0; i<states->size(); i++){
         for(int z=1; z<c; z++){
             DoubleList<string>* n = new DoubleList<string>();
-            n = Union(table_afnd,f, z, states[0][i]);
+            n = Union_matriz(table_afnd,f, z, states[0][i]);
             if(!repeat_state(states,n) && n->size()>1){
                 states->push_back(n);
                 final(afn,n, finals);
@@ -307,7 +307,7 @@ int search_pos(AFN* afn,string state, int pos){
     for(int i=pos; i<afn->states->size(); i++)
         if(afn->states[0][i]->List[0][0] == state)
             return i;
-    throw("No se encontro la posición");
+    return -1;
 }
 
 void create_array_A(AFN* afn, string s, DoubleList<string>* A){
@@ -323,7 +323,7 @@ void create_array_A(AFN* afn, string s, DoubleList<string>* A){
                 pos = search_pos(afn, afn->states->front()->List[0][j+1], pos);
                 while(true){
                     aux = aux + afn->states[0][pos]->transitions;
-                    if(aux.size() == suffix.size())
+                    if(aux.size() == suffix.size() || pos==-1)
                         break;
                     pos = search_pos(afn, afn->states[0][pos]->List[0][1], pos);
                 }
@@ -336,7 +336,25 @@ void create_array_A(AFN* afn, string s, DoubleList<string>* A){
     }
 }
 
-void create_states_special(AFN* afn){
+int repeat_letter(DoubleList<char>* letters,  char s){
+    for(int i=0; i<letters->size(); i++)
+        if((*letters)[i] == s)
+            return i;
+    return -1;
+}
+
+int search_alphabet(string alphabet, char s){
+    for (int i=0; i<alphabet.size(); i++)
+        if(alphabet[i] == s)
+            return i;
+    return -1;
+}
+
+AFD* create_AFD_special(AFN* afn){
+    // Estados
+    DoubleList<DoubleList<string>*>* states = new DoubleList<DoubleList<string>*>();
+    DoubleList<DoubleList<string>*>* finals = new DoubleList<DoubleList<string>*>();
+    // Posicion y un comprobador
     int pos = 0;
     bool cmp = false;
     // Estado inicial q0
@@ -345,32 +363,62 @@ void create_states_special(AFN* afn){
     string p = "";
     // Cadena S que puede llegar de q0 a p
     string s = "";
-    // Estados que puedo llegar por un sufijo
-    DoubleList<string>* A = new DoubleList<string>();
-    // Creamos todos los estados
+    // Creamos todos los estados junto a sus transiciones
     for(int i=0; i<afn->states->front()->transitions.size(); i++){
         s = s + afn->states->front()->transitions[i];
         while(pos < afn->states->size()){
-            if(!cmp)
-                p = afn->states[0][pos]->List[0][1];
-            else
-                p = afn->states->front()->List[0][i+1];
-            create_array_A(afn,s,A); 
+            DoubleList<string>* A = new DoubleList<string>();
+            if(!cmp) p = afn->states[0][pos]->List[0][1];
+            else p = afn->states->front()->List[0][i+1];
+            create_array_A(afn,s,A);
+            A->push_front(initial_state);
             if(state_final(afn,p)){
-                A->clear();
+                states->push_back(A);
+                finals->push_back(A);
                 pos++;
                 cmp = true;
                 break;
             }
             s = s + afn->states[0][pos+1 - (cmp==true ? 1 : 0)]->transitions;
-            A->clear();
-            if(cmp)
-                cmp = false;
-            else
-                pos++;
+            if(!repeat_state(states,A)) {
+                states->push_back(A);
+            }
+            if(cmp) cmp = false;
+            else pos++;
         }
         s.clear();
     }
+    AFD* afd = new AFD(afn->alphabet);
+    DoubleList<string>* b = new DoubleList<string>();
+    b->push_back("1");
+    states->push_front(b);
+    DoubleList<string>*** table_afd = createMatriz(states->size(),afn->alphabet.size()+1);
+    for(int i=0; i<states->size(); i++){
+        table_afd[i][0] = (*states)[i];
+        for(int j=1; j<afn->alphabet.size()+1; j++){
+            DoubleList<string>* aux = new DoubleList<string>();
+            aux->push_back("1");
+            table_afd[i][j] = aux;
+        }
+        for(int k=0; k<(*states)[i]->size(); k++){
+            for(int z=0; z<afn->states->size(); z++){
+                if(afn->states[0][z]->List[0][0] == (*states)[i][0][k]){
+                    for(int m=0; m<afn->states[0][z]->transitions.size(); m++){
+                        pos = search_alphabet(afn->alphabet,afn->states[0][z]->transitions[m]);
+                        if( pos != -1){
+                            table_afd[i][pos+1]->push_back(afn->states[0][z]->List[0][m+1]);
+                        }else throw("This character is not found in alphabet");
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    afd->columnas = afn->alphabet.size()+1;
+    afd->filas = states->size();
+    afd->states_final = finals;
+    afd->transitions = table_afd;
+    return afd;
 }
 
 int main(){
@@ -378,9 +426,9 @@ int main(){
     afn = createAFN();
     //display(afn);
     //transition_BFS(afn);
-    //AFD* afd = new AFD();
-    //afd = convert_AFN_to_AFD(afn);
-    create_states_special(afn);
-    //transiction_AFD(afd);
+    AFD* afd = new AFD();
+    afd = convert_AFN_to_AFD(afn);
+    //afd = create_AFD_special(afn);
+    transiction_AFD(afd);
     return 0;
 }
