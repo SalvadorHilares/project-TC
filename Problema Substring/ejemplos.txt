@@ -1,0 +1,60 @@
+EJEMPLO 1
+---------
+abcdefghijklmnopqrstuvwxyz
+3
+web
+ebay
+weby
+3
+eweb
+quebay
+ffwegg
+
+EJEMPLO 2
+---------
+1234567890()[]{};+-*/#abcdefghijklmnopqrstuvwxyz
+3
+return0;
+#ifdef
+while(true)
+4
+#definen5
+do{x=10}while(true);
+#ifndef
+return;
+
+EJEMPLO 3
+---------
+abcdefghijklmnopqrstuvwxyz
+4
+puerta
+puerco
+espin
+cocina
+3
+puercespim
+puerto
+uercocinas
+
+EJEMPLO 4
+---------
+ABCDEFGHIJKLMNOP123456789abcdefghijklmnopqrstuvwxyz=_()
+3
+fillMatrix
+N=
+matriz
+3
+fill_matrix
+ifn=5
+fillMatriz(matriz)
+
+EJEMPLO 5
+---------
+ab
+2
+aba
+aa
+3
+aab
+bbaba
+bbabb
