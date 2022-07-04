@@ -430,5 +430,7 @@ int main(){
     afd = convert_AFN_to_AFD(afn);
     //afd = create_AFD_special(afn);
     transiction_AFD(afd);
+    delete afn;
+    delete afd;
     return 0;
 }
